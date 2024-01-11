@@ -63,25 +63,50 @@ app.get('/words', getAccessToken, requireAccessToken, function(req, res) {
 	/*
 	 * Make this function require the "read" scope
 	 */
-	res.json({words: savedWords.join(' '), timestamp: Date.now()});
+	const token = req.access_token;
+	console.log('access token', token);
+
+	if (__.contains(token.scope, 'read')) {
+		res.json({words: savedWords.join(' '), timestamp: Date.now()});
+		res.end();
+	}
+	else {
+		res.status(403).end();
+	}
 });
 
 app.post('/words', getAccessToken, requireAccessToken, function(req, res) {
 	/*
 	 * Make this function require the "write" scope
 	 */
-	if (req.body.word) {
+
+	const token = req.access_token;
+	console.log('access token', token);
+
+	if (__.contains(token.scope, 'write')) {
 		savedWords.push(req.body.word);
+		res.status(201).end();
 	}
-	res.status(201).end();
+	else {
+		res.status(403).end();
+	}
 });
 
 app.delete('/words', getAccessToken, requireAccessToken, function(req, res) {
 	/*
 	 * Make this function require the "delete" scope
 	 */
-	savedWords.pop();
-	res.status(204).end();
+
+	const token = req.access_token;
+	console.log('access token', token);
+
+	if (__.contains(token.scope, 'delete')) {
+		savedWords.pop();
+		res.status(204).end();
+	}
+	else {
+		res.status(403).end();
+	}
 });
 
 var server = app.listen(9002, 'localhost', function () {
