@@ -69,15 +69,37 @@ var bobFavorites = {
 	'music': ['baroque', 'ukulele', 'baroque ukulele']
 };
 
+function filterByScope(scope, favorites) {
+	var filtered = {};
+	for (var key in favorites) {
+		if (__.contains(scope, key)) {
+			filtered[key] = favorites[key];
+		}
+	}
+	return filtered;
+}
+
 app.get('/favorites', getAccessToken, requireAccessToken, function(req, res) {
 	
 	/*
 	 * Get different user information based on the information of who approved the token
 	 */
-	
-	var unknown = {user: 'Unknown', favorites: {movies: [], foods: [], music: []}};
-	res.json(unknown);
 
+	console.log(req.access_token);
+
+	if (req.access_token.user == 'alice') {
+		res.json({user: 'Alice', favorites: filterByScope(req.access_token.scope, aliceFavorites)});
+	}
+	else if (req.access_token.user == 'bob') {
+		res.json({user: 'Bob', favorites: filterByScope(req.access_token.scope, bobFavorites)});
+	}
+	else if (req.access_token.user == 'carol') {
+		res.json({user: 'Carol', favorites: filterByScope(req.access_token.scope, carolFavorites)});
+	}
+	else {
+		var unknown = {user: 'Unknown', favorites: {movies: [], foods: [], music: []}};
+		res.json(unknown);
+	}
 });
 
 var server = app.listen(9002, 'localhost', function () {
